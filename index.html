@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Picker Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .color-display {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #000;
+            margin-bottom: 20px;
+        }
+        input[type="range"] {
+            width: 300px;
+        }
+        @media (max-width: 600px) {
+            input[type="range"] {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div role="application" aria-label="Color Picker Tool">
+        <div class="color-display" id="colorDisplay" aria-live="polite"></div>
+        <label for="redRange">Red: <span id="redValue">0</span></label>
+        <input type="range" id="redRange" min="0" max="255" value="0" aria-labelledby="redValue" />
+        <label for="greenRange">Green: <span id="greenValue">0</span></label>
+        <input type="range" id="greenRange" min="0" max="255" value="0" aria-labelledby="greenValue" />
+        <label for="blueRange">Blue: <span id="blueValue">0</span></label>
+        <input type="range" id="blueRange" min="0" max="255" value="0" aria-labelledby="blueValue" />
+        <button id="saveColor">Save Color</button>
+        <div id="message" aria-live="polite"></div>
+    </div>
+    <script>
+        const colorDisplay = document.getElementById('colorDisplay');
+        const redRange = document.getElementById('redRange');
+        const greenRange = document.getElementById('greenRange');
+        const blueRange = document.getElementById('blueRange');
+        const message = document.getElementById('message');
+
+        function updateColor() {
+            const r = redRange.value;
+            const g = greenRange.value;
+            const b = blueRange.value;
+            colorDisplay.style.backgroundColor = `rgb(${r},${g},${b})`;
+            document.getElementById('redValue').innerText = r;
+            document.getElementById('greenValue').innerText = g;
+            document.getElementById('blueValue').innerText = b;
+        }
+
+        function saveColor() {
+            const color = {
+                red: redRange.value,
+                green: greenRange.value,
+                blue: blueRange.value
+            };
+            fetch('https://example.com/api/saveColor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(color)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                message.innerText = 'Color saved successfully!';
+            })
+            .catch(error => {
+                message.innerText = 'Error saving color: ' + error.message;
+            });
+        }
+
+        redRange.addEventListener('input', updateColor);
+        greenRange.addEventListener('input', updateColor);
+        blueRange.addEventListener('input', updateColor);
+        document.getElementById('saveColor').addEventListener('click', saveColor);
+
+        updateColor();
+    </script>
+</body>
+</html>
